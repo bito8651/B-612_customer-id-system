@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員編號分配</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
+        .container { padding: 20px; border: 2px solid #007bff; border-radius: 10px; display: inline-block; }
+        .btn { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; margin-top: 20px; }
+        .btn:disabled { background: gray; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>會員編號分配</h1>
+        <input type="email" id="email" placeholder="請輸入您的電子信箱">
+        <button class="btn" onclick="fetchCustomerID()">查詢編號</button>
+        <h2 id="customerID"></h2>
+        <button class="btn" id="confirmBtn" onclick="confirmID()" disabled>確認取號</button>
+        <p id="status"></p>
+    </div>
+
+    <script>
+        const GAS_URL = "https://script.google.com/macros/s/你的GAS部署ID/exec"; // 替換為你的 Google Apps Script 部署網址
+
+        async function fetchCustomerID() {
+            let email = document.getElementById("email").value;
+            if (!email) {
+                alert("請輸入電子信箱！");
+                return;
+            }
+            let response = await fetch(GAS_URL + "?action=getID&email=" + encodeURIComponent(email));
+            let data = await response.text();
+            document.getElementById("customerID").innerText = data;
+            document.getElementById("confirmBtn").disabled = !data.includes("C");
+        }
+
+        async function confirmID() {
+            let email = document.getElementById("email").value;
+            let response = await fetch(GAS_URL + "?action=confirmID&email=" + encodeURIComponent(email));
+            let result = await response.text();
+            document.getElementById("status").innerText = result;
+            setTimeout(() => window.close(), 2000);
+        }
+    </script>
+</body>
+</html>
